@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brand Questionnaire</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* =====================================================================
+   SETTINGS: fill these in before you upload the page.
+   ===================================================================== */
+const CONFIG = {
+  // Email that receives the PDF (through formsubmit.co, free).
+  email: "YOUR-EMAIL@example.com",
+  // WhatsApp number in international format, digits only, no + or spaces.
+  // Example for +971 50 123 4567: "971501234567"
+  whatsapp: "000000000000",
+  // Your name, shown to the client.
+  designer: "Sarah"
+};
+</script>
+<style>
+  :root{
+    --bg:#f7f1ea; --card:#fffdf9; --ink:#2b1d16; --muted:#7a6558;
+    --brand:#5a3422; --brand-2:#8a5a3c; --line:#e7dacd; --tick:#5a3422; --ok:#2f6b3a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5}
+  .ar{font-family:"Noto Naskh Arabic",serif;direction:rtl;text-align:right;display:block}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 16px 120px}
+  header.hero{text-align:center;padding:32px 0 12px}
+  .hero h1{font-family:"Cormorant Garamond",serif;font-size:clamp(30px,7vw,46px);margin:0;color:var(--brand);line-height:1.1}
+  .hero .ar{text-align:center;font-size:clamp(22px,5vw,30px);color:var(--brand);margin-top:6px;font-weight:600}
+  .intro{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin:20px 0}
+  .intro p{margin:0 0 8px}
+  .field{margin:12px 0}
+  .field label{font-weight:600;display:block}
+  input[type=text],input[type=email],input[type=tel],textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+  section.sec{margin-top:36px}
+  .sec h2{font-family:"Cormorant Garamond",serif;font-size:30px;margin:0;color:var(--brand)}
+  .sec h2 + .ar{font-size:22px;font-weight:700;color:var(--brand-2);margin-bottom:8px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin:14px 0}
+  .q .qt{font-weight:600}
+  .q .qt.ar{font-weight:700;margin-top:2px}
+  .q .num{color:var(--brand-2)}
+  .opts{margin-top:10px;display:grid;gap:8px}
+  .opt{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;background:#fff}
+  .opt:hover{border-color:var(--brand-2)}
+  .opt input[type=checkbox]{width:20px;height:20px;margin-top:2px;accent-color:var(--tick);flex:0 0 auto}
+  .opt .txt{flex:1;min-width:0}
+  .opt .txt .ar{font-size:15px;color:var(--muted)}
+  .opt.on{border-color:var(--brand);background:#f6ece3}
+  .opt input[type=text]{margin-top:6px;padding:7px 10px}
+  .note{color:var(--muted);font-size:14px;margin-top:8px}
+  .products{margin-top:12px;display:grid;gap:12px}
+  .prod{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;display:grid;gap:8px;grid-template-columns:1fr 1fr}
+  .prod .full{grid-column:1/-1}
+  .prod label{font-size:13px;font-weight:600;display:block}
+  .prod label .ar{font-weight:600;color:var(--muted)}
+  .btn .ar{text-align:center;font-weight:600}
+  .linkbtn .ar{text-align:center}
+  .prod .photo img{max-width:120px;max-height:120px;border-radius:8px;display:block;margin-top:6px}
+  .prod .head{display:flex;justify-content:space-between;align-items:center}
+  .linkbtn{background:none;border:none;color:var(--brand-2);font:inherit;cursor:pointer;text-decoration:underline;padding:0}
+  .btn{display:inline-flex;flex-direction:column;line-height:1.3;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:12px;border:1px solid var(--brand);background:var(--brand);color:#fff;font:inherit;font-weight:600;cursor:pointer;text-decoration:none}
+  .btn.ghost{background:#fff;color:var(--brand)}
+  .btn:disabled{opacity:.6;cursor:wait}
+  .sendbar{position:fixed;left:0;right:0;bottom:0;background:rgba(247,241,234,.96);border-top:1px solid var(--line);padding:12px 16px;display:flex;justify-content:center;gap:10px;z-index:5}
+  .sendbar .btn{min-width:220px}
+  dialog{border:none;border-radius:18px;padding:0;max-width:440px;width:calc(100% - 32px);background:var(--card);color:var(--ink)}
+  dialog::backdrop{background:rgba(43,29,22,.45)}
+  .dlg{padding:22px}
+  .dlg h3{margin:0 0 4px;font-family:"Cormorant Garamond",serif;font-size:26px;color:var(--brand)}
+  .dlg .actions{display:grid;gap:10px;margin-top:16px}
+  .status{margin-top:12px;font-size:14px}
+  .status.ok{color:var(--ok)}
+  @media (max-width:520px){
+    .prod{grid-template-columns:1fr}
+    .sendbar .btn{min-width:0;flex:1}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>Brand discovery questionnaire</h1>
+    <span class="ar">استبيان اكتشاف العلامة التجارية</span>
+  </header>
+
+  <div class="intro">
+    <p>Tick one or more answers for each question, and write in "Other" if nothing fits. There are no wrong answers. When you finish, press <b>Send</b> at the bottom.</p>
+    <p class="ar">ضع علامة على إجابة أو أكثر لكل سؤال، واكتب في «أخرى» إذا لم يناسبك أي خيار. لا توجد إجابات خاطئة. عند الانتهاء، اضغط <b>إرسال</b> في الأسفل.</p>
+    <div class="field">
+      <label for="cname">Your name <span class="ar">اسمك</span></label>
+      <input type="text" id="cname" autocomplete="name">
+    </div>
+    <div class="field">
+      <label for="cphone">Phone or email <span class="ar">الهاتف أو البريد الإلكتروني</span></label>
+      <input type="text" id="cphone" autocomplete="tel">
+    </div>
+  </div>
+
+  <form id="qform" onsubmit="return false"></form>
+</div>
+
+<div class="sendbar">
+  <button class="btn" id="sendBtn" type="button"><span>Send</span><span class="ar">إرسال</span></button>
+</div>
+
+<dialog id="dlg">
+  <div class="dlg">
+    <h3>Thank you</h3>
+    <span class="ar" style="font-weight:700;color:#5a3422">شكرًا لك</span>
+    <p id="dlgMsg">Your answers are ready as a PDF.</p>
+    <span class="ar" id="dlgMsgAr">إجاباتك جاهزة كملف PDF.</span>
+    <div class="actions">
+      <button class="btn" id="waBtn" type="button"><span>Send on WhatsApp</span><span class="ar">أرسل عبر واتساب</span></button>
+      <button class="btn ghost" id="mailBtn" type="button"><span>Send by email</span><span class="ar">أرسل بالبريد الإلكتروني</span></button>
+      <button class="btn ghost" id="dlBtn" type="button"><span>Download PDF</span><span class="ar">تنزيل الملف</span></button>
+    </div>
+    <div class="status" id="status"></div>
+    <div class="actions"><button class="linkbtn" id="closeBtn" type="button"><span>Close</span><span class="ar">إغلاق</span></button></div>
+  </div>
+</dialog>
+
+<iframe name="fs_target" id="fs_target" style="display:none"></iframe>
+
+<script>
+/* Each option: [English, Arabic] or [English, Arabic, true] when it has a text box. */
+const O = (en, ar, input) => ({en, ar, input: !!input});
+const OTHER = O("Other", "أخرى", true);
+
+const SECTIONS = [
+ {en:"1. Story and values", ar:"١. القصة والقيم", qs:[
+  {en:"How did you start making chocolate?", ar:"كيف بدأت صناعة الشوكولاتة؟", o:[O("A family recipe passed down","وصفة عائلية متوارثة"),O("Self-taught, as a hobby","تعلّمت بنفسي كهواية"),O("A course or professional training","دورة أو تدريب مهني"),OTHER]},
+  {en:"Who in the family is involved?", ar:"من يشارك من العائلة؟", o:[O("Just me","أنا فقط"),O("My partner or spouse","شريكي أو زوجي/زوجتي"),O("Parents or grandparents","الوالدان أو الأجداد"),O("Children or siblings","الأبناء أو الإخوة"),OTHER]},
+  {en:"Is there something from the family that should be part of the brand?", ar:"هل هناك شيء من العائلة يجب أن يكون جزءًا من العلامة؟", o:[O("A recipe","وصفة"),O("A place (a home, a village, a city)","مكان (بيت، قرية، مدينة)"),O("A person or a nickname","شخص أو لقب"),O("A tradition or gathering","عادة أو لمّة عائلية"),O("Nothing specific","لا شيء محدد"),OTHER]},
+  {en:"Why chocolate?", ar:"لماذا الشوكولاتة؟", o:[O("It's a passion","هي شغفي"),O("People kept asking for it","الناس كانوا يطلبونها باستمرار"),O("To build a family business","لبناء مشروع عائلي"),OTHER]},
+  {en:"Your chocolate is made for which moments?", ar:"شوكولاتتك مصنوعة لأي لحظات؟", o:[O("Sharing with family and friends","المشاركة مع العائلة والأصدقاء"),O("Giving a gift","تقديم هدية"),O("A treat for yourself","مكافأة لنفسك"),O("Celebrations and holidays","المناسبات والأعياد"),O("With coffee or tea","مع القهوة أو الشاي")]},
+  {en:"Which words describe you best? (pick up to three)", ar:"أي الكلمات تصفك أكثر؟ (اختر حتى ثلاث)", o:[O("Warm","دافئ"),O("Elegant","أنيق"),O("Playful","مرح"),O("Traditional","تقليدي"),O("Modern","عصري"),O("Generous","كريم"),O("Natural","طبيعي"),OTHER]},
+  {en:"What will you never compromise on?", ar:"ما الذي لن تتهاون فيه أبدًا؟", o:[O("Quality ingredients","جودة المكوّنات"),O("Made by hand","الصنع اليدوي"),O("Natural, no preservatives","مكوّنات طبيعية بدون مواد حافظة"),O("Ethical or fair-trade cocoa","كاكاو أخلاقي أو من التجارة العادلة"),OTHER]},
+  {en:"Where do you see the business in 3 years?", ar:"أين ترى المشروع بعد 3 سنوات؟", o:[O("Still small, from home","صغيرًا ومن المنزل"),O("A small shop or workshop","محل أو ورشة صغيرة"),O("Selling in other shops and online","البيع في محلات أخرى وعبر الإنترنت"),O("Several shops","عدة فروع"),OTHER]}
+ ]},
+ {en:"2. Product", ar:"٢. المنتج", qs:[
+  {en:"Which types of chocolate will you sell in the first year?", ar:"ما أنواع الشوكولاتة التي ستبيعها في السنة الأولى؟", o:[O("Bars","ألواح"),O("Filled bonbons or pralines","قطع محشوة أو برالين"),O("Truffles","ترافل"),O("Chocolate-covered dates or nuts","تمر أو مكسرات مغطاة بالشوكولاتة"),O("Bark or slabs with toppings","شرائح شوكولاتة بالإضافات"),O("Spreads","كريمات قابلة للدهن"),O("Hot chocolate","شوكولاتة ساخنة"),O("Gift boxes and assortments","علب هدايا وتشكيلات"),OTHER]},
+  {en:"Which one will be your signature product?", ar:"أي منتج سيكون منتجك المميّز؟", o:[O("A bar","لوح"),O("A filled piece or truffle","قطعة محشوة أو ترفل"),O("A gift box","علبة هدايا"),O("Not decided yet","لم أقرر بعد"),OTHER]},
+  {en:"Which flavours make you different?", ar:"ما النكهات التي تميّزك؟", o:[O("Classic (dark, milk, white)","كلاسيكية (داكنة، بالحليب، بيضاء)"),O("Nuts (pistachio, hazelnut, almond)","مكسرات (فستق، بندق، لوز)"),O("Fruit","فواكه"),O("Spices or flowers (cardamom, saffron, rose)","بهارات أو زهور (هيل، زعفران، ورد)"),O("Coffee or caramel","قهوة أو كراميل"),OTHER]},
+  {en:"How do you make your chocolate?", ar:"كيف تصنع شوكولاتتك؟", o:[O("From cocoa beans (bean-to-bar)","من حبوب الكاكاو مباشرة"),O("From ready couverture chocolate","من شوكولاتة خام جاهزة (كوفرتور)"),O("Not sure","لست متأكدًا")]},
+  {en:"Which sizes will you sell?", ar:"ما الأحجام التي ستبيعها؟", o:[O("Single pieces","قطع مفردة"),O("Small box (4 to 6 pieces)","علبة صغيرة (4 إلى 6 قطع)"),O("Medium box (9 to 12 pieces)","علبة متوسطة (9 إلى 12 قطعة)"),O("Large box (16 or more)","علبة كبيرة (16 قطعة أو أكثر)"),O("Bars (about 100 g)","ألواح (حوالي 100 غرام)"),O("Sold by weight","بالوزن")]},
+  {en:"How long do your products keep?", ar:"ما مدة صلاحية منتجاتك؟", o:[O("Less than 2 weeks","أقل من أسبوعين"),O("2 weeks to 2 months","من أسبوعين إلى شهرين"),O("More than 2 months","أكثر من شهرين"),O("They must stay in the fridge","يجب حفظها في الثلاجة")]},
+  {en:"Will you make seasonal collections?", ar:"هل ستصنع تشكيلات موسمية؟", o:[O("Ramadan and Eid","رمضان والعيد"),O("Christmas and New Year","الكريسماس ورأس السنة"),O("Valentine's Day","عيد الحب"),O("Mother's Day","عيد الأم"),O("Weddings and events","الأعراس والمناسبات"),O("No seasonal collections","لا تشكيلات موسمية")]},
+  {en:"What must the label show?", ar:"ماذا يجب أن يظهر على الملصق؟", o:[O("Halal","حلال"),O("Vegan options","خيارات نباتية"),O("Organic","عضوي"),O("Allergens (nuts, milk, gluten)","مسببات الحساسية (مكسرات، حليب، غلوتين)"),O("Sugar-free options","خيارات بدون سكر"),OTHER]},
+  {type:"products", en:"Your product line for the first year: add each product with a photo.", ar:"منتجاتك للسنة الأولى: أضف كل منتج مع صورة له."}
+ ]},
+ {en:"3. Audience", ar:"٣. الجمهور", qs:[
+  {en:"Who buys from you today?", ar:"من يشتري منك حاليًا؟", o:[O("Family and friends","العائلة والأصدقاء"),O("Neighbours and the local community","الجيران والمجتمع المحلي"),O("Colleagues and offices","الزملاء والمكاتب"),O("People who find me online","أشخاص يجدونني عبر الإنترنت"),O("Nobody yet","لا أحد بعد")]},
+  {en:"Do people buy mostly for themselves or as a gift?", ar:"هل يشتري الناس غالبًا لأنفسهم أم كهدية؟", o:[O("Mostly for themselves","غالبًا لأنفسهم"),O("Mostly as a gift","غالبًا كهدية"),O("About half and half","تقريبًا نصف ونصف")]},
+  {en:"Who do you want to reach next?", ar:"من تريد أن تصل إليه بعد ذلك؟", o:[O("Young people (18 to 30)","الشباب (18 إلى 30)"),O("Families","العائلات"),O("Gift buyers","من يشترون الهدايا"),O("Chocolate lovers and foodies","عشاق الشوكولاتة والأكل المميّز"),O("Businesses","الشركات"),OTHER]},
+  {en:"Which language should come first on the packaging?", ar:"أي لغة يجب أن تظهر أولًا على التغليف؟", o:[O("English first","الإنجليزية أولًا"),O("Arabic first","العربية أولًا"),O("Both equally","اللغتان بالتساوي")]},
+  {en:"What do customers say when they first taste your chocolate?", ar:"ماذا يقول العملاء عند تذوّق شوكولاتتك لأول مرة؟", o:[O("\"It tastes homemade\"","«طعمها مثل البيت»"),O("\"It's not too sweet\"","«ليست حلوة أكثر من اللازم»"),O("\"It's so fresh\"","«طازجة جدًا»"),O("\"I've never tasted this flavour\"","«لم أتذوق هذه النكهة من قبل»"),OTHER]},
+  {en:"Would you sell to businesses?", ar:"هل ترغب في البيع للشركات؟", o:[O("Corporate gifts","هدايا الشركات"),O("Hotels and cafés","الفنادق والمقاهي"),O("Weddings and events","الأعراس والمناسبات"),O("Not for now","ليس حاليًا")]}
+ ]},
+ {en:"4. Positioning and price", ar:"٤. التموضع والسعر", qs:[
+  {en:"Which kind of chocolate brand do you admire most?", ar:"أي نوع من علامات الشوكولاتة تُعجب به أكثر؟", o:[O("Big international names","العلامات العالمية الكبيرة"),O("Small local chocolatiers","صانعو الشوكولاتة المحليون الصغار"),O("Luxury boutiques","المحلات الفاخرة"),O("Other (name them)","أخرى (اذكرها)",true)]},
+  {en:"What do you do better than your competitors?", ar:"ما الذي تقوم به أفضل من منافسيك؟", o:[O("Taste and quality","المذاق والجودة"),O("Freshness, made to order","الطزاجة والتحضير حسب الطلب"),O("Unique flavours","نكهات فريدة"),O("Personal, family service","خدمة شخصية وعائلية"),O("Better price","سعر أفضل"),OTHER]},
+  {en:"What is the price of your main product (e.g. a box of 9)?", ar:"ما سعر منتجك الرئيسي (مثلًا علبة من 9 قطع)؟", o:[O("Budget, cheaper than most shops","اقتصادي، أرخص من معظم المحلات"),O("Similar to other shops","مشابه لباقي المحلات"),O("Above average","أعلى من المتوسط"),O("Not decided yet","لم يُحدد بعد"),O("Exact price","السعر الدقيق",true)]},
+  {en:"Where do you see your chocolate?", ar:"أين ترى شوكولاتتك؟", o:[O("An everyday treat","حلوى يومية"),O("A premium gift","هدية راقية"),O("A luxury piece","منتج فاخر")]},
+  {en:"If a customer remembers one thing about you, what should it be?", ar:"لو تذكّر العميل شيئًا واحدًا عنك، ماذا تريد أن يكون؟", o:[O("The taste","المذاق"),O("The family story","قصة العائلة"),O("The beautiful presentation","التقديم الجميل"),O("The warm service","الخدمة الدافئة"),OTHER]}
+ ]},
+ {en:"5. Channels", ar:"٥. قنوات البيع", qs:[
+  {en:"Where do you sell today?", ar:"أين تبيع حاليًا؟", o:[O("From home, by order","من المنزل حسب الطلب"),O("Markets and pop-ups","الأسواق والمعارض المؤقتة"),O("Shops or cafés","المحلات أو المقاهي"),O("Instagram or WhatsApp","إنستغرام أو واتساب"),O("Not selling yet","لا أبيع بعد")]},
+  {en:"Where do you want to sell within a year?", ar:"أين تريد أن تبيع خلال سنة؟", o:[O("My own shop","محلي الخاص"),O("An online store","متجر إلكتروني"),O("Delis and gift shops","محلات الأطعمة الفاخرة والهدايا"),O("Hotels and cafés","الفنادق والمقاهي"),O("Delivery apps","تطبيقات التوصيل")]},
+  {en:"Which social media will you use?", ar:"أي منصات تواصل اجتماعي ستستخدم؟", o:[O("Instagram","إنستغرام"),O("TikTok","تيك توك"),O("Facebook","فيسبوك"),O("WhatsApp Business","واتساب للأعمال"),O("Snapchat","سناب شات")]},
+  {en:"Do you need a website?", ar:"هل تحتاج إلى موقع إلكتروني؟", o:[O("Yes, with online ordering","نعم، مع الطلب عبر الإنترنت"),O("Yes, a simple page to show the products","نعم، صفحة بسيطة لعرض المنتجات"),O("Not now, social media is enough","ليس الآن، مواقع التواصل تكفي")]},
+  {en:"Will you deliver or ship orders?", ar:"هل ستوصل أو تشحن الطلبات؟", o:[O("Pick-up only","الاستلام فقط"),O("Local delivery in my city","توصيل محلي داخل مدينتي"),O("Shipping across the country","شحن إلى كل البلد"),O("International shipping","شحن دولي")]},
+  {en:"Do you need anything for a stall or event table?", ar:"هل تحتاج شيئًا لكشك أو طاولة في المعارض؟", o:[O("A sign or banner","لافتة أو بانر"),O("A tablecloth","غطاء طاولة"),O("A price list or menu card","قائمة أسعار"),O("Business cards","بطاقات عمل"),O("Not needed","لا حاجة")]}
+ ]},
+ {en:"6. Look and feel", ar:"٦. الهوية البصرية", qs:[
+  {en:"If your brand were a place, which would it be?", ar:"لو كانت علامتك مكانًا، فأي مكان تكون؟", o:[O("A grandmother's kitchen","مطبخ الجدّة"),O("An elegant salon","صالون أنيق"),O("A busy market stall","كشك في سوق مزدحم"),O("A garden or orchard","حديقة أو بستان"),O("A modern café","مقهى عصري")]},
+  {en:"Which style feels most like you?", ar:"أي أسلوب يشبهك أكثر؟", o:[O("Rustic and handmade","ريفي ومصنوع يدويًا"),O("Refined and minimal","راقٍ وبسيط"),O("Colourful and fun","ملوّن ومرح"),O("Classic and luxurious","كلاسيكي وفاخر")]},
+  {en:"Which colours do you like for the brand?", ar:"أي ألوان تحبها للعلامة؟", o:[O("Chocolate browns and cream","درجات البني والكريمي"),O("Deep colours (burgundy, navy, forest green)","ألوان عميقة (عنابي، كحلي، أخضر غامق)"),O("Soft pastels","ألوان باستيل هادئة"),O("Black, white and gold","أسود وأبيض وذهبي"),O("Bright and bold","ألوان زاهية وجريئة"),O("Colours to avoid","ألوان يجب تجنبها",true)]},
+  {en:"Which details do you like?", ar:"أي التفاصيل تعجبك؟", o:[O("Hand-drawn illustrations","رسومات يدوية"),O("Handwriting or calligraphy","خط يدوي أو خط عربي"),O("A stamp or seal","ختم أو ختم شمعي"),O("Clean lettering only","خطوط بسيطة فقط"),O("Patterns","نقوش وزخارف")]},
+  {en:"Would you like a cultural or family symbol in the design?", ar:"هل ترغب في رمز ثقافي أو عائلي في التصميم؟", o:[O("A traditional pattern","نقشة تقليدية"),O("A plant or flower","نبتة أو زهرة"),O("Family initials","الحروف الأولى للعائلة"),O("A place or landmark","مكان أو معلم"),O("No symbol","بدون رمز"),OTHER]},
+  {en:"Name two or three brands (any industry) whose look you love, and one you dislike.", ar:"اذكر علامتين أو ثلاثًا (من أي مجال) يعجبك شكلها، وواحدة لا تعجبك.", o:[O("I love","تعجبني",true),O("I dislike","لا تعجبني",true)]},
+  {en:"Should the family appear in photos and on social media?", ar:"هل تظهر العائلة في الصور ومواقع التواصل؟", o:[O("Yes, faces and all","نعم، بالوجوه"),O("Only hands at work","الأيدي فقط أثناء العمل"),O("No, only the products","لا، المنتجات فقط")]}
+ ]},
+ {en:"7. Name", ar:"٧. الاسم", qs:[
+  {en:"Should the family name be part of the brand?", ar:"هل يكون اسم العائلة جزءًا من العلامة؟", o:[O("Yes (e.g. \"House of ___\")","نعم (مثل «بيت ___»)"),O("No, a separate name","لا، اسم مستقل"),O("Open to both","منفتح على الخيارين")]},
+  {en:"Which language should the name be in?", ar:"بأي لغة يكون الاسم؟", o:[O("English","الإنجليزية"),O("Arabic","العربية"),O("A word that works in both","كلمة تصلح باللغتين"),O("Another language","لغة أخرى",true)]},
+  {en:"Where should the name come from?", ar:"من أين يأتي الاسم؟", o:[O("A word from our family story","كلمة من قصة عائلتنا"),O("A place","مكان"),O("A chocolate or cocoa word","كلمة عن الشوكولاتة أو الكاكاو"),O("A feeling (warmth, sharing, joy)","شعور (الدفء، المشاركة، الفرح)"),OTHER]},
+  {en:"What kind of name do you prefer?", ar:"أي نوع من الأسماء تفضّل؟", o:[O("Short and punchy","قصير ولافت"),O("Descriptive and poetic","وصفي وشاعري"),O("Playful","مرح")]},
+  {en:"Do you already have names in mind?", ar:"هل لديك أسماء في بالك؟", o:[O("Yes","نعم",true),O("Names I don't want","أسماء لا أريدها",true),O("No, I'm open","لا، أنا منفتح")]},
+  {en:"Where will you register the business and trademark?", ar:"أين ستسجّل المشروع والعلامة التجارية؟", o:[O("Country","البلد",true),O("Not sure yet","لست متأكدًا بعد")]}
+ ]},
+ {en:"8. Packaging plan and budget", ar:"٨. خطة التغليف وميزانيته", intro:{
+   en:"We sell the taste first in simple, beautiful packaging, then upgrade in steps: 1) kraft boxes, stamp and stickers now; 2) printed sleeves and insert cards when sales are steady; 3) custom boxes later. The logo and colours stay the same at every step.",
+   ar:"نبيع المذاق أولًا في تغليف بسيط وجميل، ثم نطوّره على مراحل: ١) علب كرافت وختم وملصقات الآن؛ ٢) أغلفة مطبوعة وبطاقات داخلية عند استقرار المبيعات؛ ٣) علب مصمّمة خصيصًا لاحقًا. الشعار والألوان تبقى نفسها في كل مرحلة."},
+  qs:[
+  {en:"How much can you spend per unit on packaging right now?", ar:"كم يمكنك أن تنفق على تغليف القطعة الواحدة حاليًا؟", o:[O("As little as possible","أقل مبلغ ممكن"),O("A small amount, for a nicer look","مبلغ بسيط لمظهر أجمل"),O("Exact amount per unit","المبلغ الدقيق للقطعة",true)]},
+  {en:"How many units do you sell per month?", ar:"كم وحدة تبيع شهريًا؟", o:[O("Fewer than 50","أقل من 50"),O("50 to 200","من 50 إلى 200"),O("200 to 500","من 200 إلى 500"),O("More than 500","أكثر من 500")]},
+  {en:"What would make you upgrade the packaging?", ar:"ما الذي سيدفعك لتطوير التغليف؟", o:[O("Reaching a sales number","الوصول إلى رقم مبيعات",true),O("Opening a shop","افتتاح محل"),O("Selling in other shops","البيع في محلات أخرى"),O("A big season (Ramadan, Christmas)","موسم كبير (رمضان، الكريسماس)")]},
+  {en:"Do you already have packaging?", ar:"هل لديك تغليف حاليًا؟", o:[O("Boxes","علب"),O("Bags","أكياس"),O("Labels or stickers","ملصقات"),O("Nothing yet","لا شيء بعد")]},
+  {en:"Can the family do hand finishing (stamping, tying, stickers)?", ar:"هل تستطيع العائلة القيام باللمسات اليدوية (الختم، الربط، الملصقات)؟", o:[O("Yes, happily","نعم، بكل سرور"),O("A little","قليلًا"),O("No, it must be ready to fill","لا، يجب أن يكون جاهزًا للتعبئة")]},
+  {en:"How will labels be printed?", ar:"كيف ستُطبع الملصقات؟", o:[O("On my home printer","على طابعتي في المنزل"),O("At a local print shop","في مطبعة محلية"),O("Online printing service","خدمة طباعة عبر الإنترنت"),O("Not sure","لست متأكدًا")]},
+  {en:"How important is eco-friendly packaging?", ar:"ما مدى أهمية التغليف الصديق للبيئة؟", o:[O("Very important","مهم جدًا"),O("Nice to have","يُفضّل"),O("Not important","غير مهم")]},
+  {en:"Who will check the legal information on the label (ingredients, allergens, weight, expiry date)?", ar:"من سيتحقق من المعلومات القانونية على الملصق (المكوّنات، مسببات الحساسية، الوزن، تاريخ الصلاحية)؟", o:[O("I will","أنا"),O("An accountant or advisor","محاسب أو مستشار"),O("I need help with this","أحتاج مساعدة في ذلك")]}
+ ]},
+ {en:"9. Practicalities", ar:"٩. أمور عملية", qs:[
+  {en:"When do you want to start selling with the new brand?", ar:"متى تريد البدء بالبيع بالعلامة الجديدة؟", o:[O("Within 1 month","خلال شهر"),O("Within 3 months","خلال 3 أشهر"),O("Before a key date or season","قبل تاريخ أو موسم مهم",true),O("No rush","لا أستعجل")]},
+  {en:"Is the business registered yet?", ar:"هل المشروع مسجّل رسميًا؟", o:[O("Yes, under the name","نعم، باسم",true),O("In progress","قيد التسجيل"),O("Not yet","ليس بعد")]},
+  {en:"Can we schedule a product photo session?", ar:"هل يمكننا تنظيم جلسة تصوير للمنتجات؟", o:[O("Yes, at home","نعم، في المنزل"),O("Yes, in a studio","نعم، في استوديو"),O("Later","لاحقًا")]}
+ ]}
+];
+
+const PROD_FIELDS = [
+  ["name","Product name","اسم المنتج"],["type","Type","النوع"],["flavour","Flavour","النكهة"],
+  ["size","Size or weight","الحجم أو الوزن"],["price","Price","السعر"]
+];
+
+const form = document.getElementById("qform");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let qid = 0;
+
+function render(){
+  let html = "";
+  SECTIONS.forEach((s, si) => {
+    html += `<section class="sec"><h2>${esc(s.en)}</h2><span class="ar">${esc(s.ar)}</span>`;
+    if (s.intro) html += `<div class="note">${esc(s.intro.en)}</div><div class="note ar">${esc(s.intro.ar)}</div>`;
+    s.qs.forEach((q, qi) => {
+      const n = qi + 1;
+      if (q.type === "products"){
+        html += `<div class="q" id="products-q"><div class="qt"><span class="num">${n}.</span> ${esc(q.en)}</div><span class="qt ar">${esc(q.ar)}</span>
+          <div class="note">Add one product at a time. Photos from your phone or computer are fine.</div>
+          <div class="note ar">أضف منتجًا واحدًا في كل مرة. يمكنك استخدام صور من هاتفك أو حاسوبك.</div>
+          <div class="products" id="products"></div>
+          <div style="margin-top:12px"><button type="button" class="btn ghost" id="addProd"><span>+ Add a product</span><span class="ar">أضف منتجًا</span></button></div></div>`;
+        return;
+      }
+      q.id = "q" + (qid++);
+      html += `<div class="q"><div class="qt"><span class="num">${n}.</span> ${esc(q.en)}</div><span class="qt ar">${esc(q.ar)}</span><div class="opts">`;
+      q.o.forEach((o, oi) => {
+        const id = `${q.id}_${oi}`;
+        html += `<label class="opt" for="${id}"><input type="checkbox" id="${id}" data-q="${q.id}" data-o="${oi}">
+          <span class="txt"><span>${esc(o.en)}</span><span class="ar">${esc(o.ar)}</span>
+          ${o.input ? `<input type="text" id="${id}_t" placeholder="...">` : ""}</span></label>`;
+      });
+      html += `</div></div>`;
+    });
+    html += `</section>`;
+  });
+  form.innerHTML = html;
+
+  form.addEventListener("change", e => {
+    if (e.target.type === "checkbox") e.target.closest(".opt").classList.toggle("on", e.target.checked);
+  });
+  // Typing in an "Other" box ticks it.
+  form.addEventListener("input", e => {
+    if (e.target.type === "text" && e.target.id.endsWith("_t")){
+      const cb = document.getElementById(e.target.id.slice(0, -2));
+      if (cb && e.target.value.trim() && !cb.checked){ cb.checked = true; cb.closest(".opt").classList.add("on"); }
+    }
+  });
+  document.getElementById("addProd").addEventListener("click", addProduct);
+  addProduct(); addProduct(); addProduct();
+}
+
+let prodCount = 0;
+function addProduct(){
+  prodCount++;
+  const wrap = document.createElement("div");
+  wrap.className = "prod";
+  wrap.innerHTML = `<div class="head full"><b>Product ${prodCount}<span class="ar">منتج ${prodCount}</span></b>
+      <button type="button" class="linkbtn rm"><span>Remove</span><span class="ar">حذف</span></button></div>` +
+    PROD_FIELDS.map(([k, en, ar]) => `<div${k === "name" ? ' class="full"' : ""}><label>${en}<span class="ar">${ar}</span></label><input type="text" data-k="${k}"></div>`).join("") +
+    `<div class="full photo"><label>Photo<span class="ar">الصورة</span></label><input type="file" accept="image/*" data-k="photo"><img alt="" hidden></div>`;
+  wrap.querySelector(".rm").onclick = () => wrap.remove();
+  const file = wrap.querySelector('input[type=file]'), img = wrap.querySelector("img");
+  file.onchange = async () => {
+    if (!file.files[0]) { img.hidden = true; delete wrap.dataset.photo; return; }
+    const data = await shrinkImage(file.files[0], 600);
+    wrap.dataset.photo = data; img.src = data; img.hidden = false;
+  };
+  document.getElementById("products").appendChild(wrap);
+}
+
+// Resize photos so the PDF stays small enough to email.
+function shrinkImage(f, max){
+  return new Promise(res => {
+    const r = new FileReader();
+    r.onload = () => {
+      const im = new Image();
+      im.onload = () => {
+        const k = Math.min(1, max / Math.max(im.width, im.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+        c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+        res(c.toDataURL("image/jpeg", 0.75));
+      };
+      im.src = r.result;
+    };
+    r.readAsDataURL(f);
+  });
+}
+
+function collect(){
+  const out = [];
+  SECTIONS.forEach(s => {
+    const sec = {en:s.en, ar:s.ar, items:[]};
+    s.qs.forEach((q, qi) => {
+      if (q.type === "products"){
+        const rows = [...document.querySelectorAll(".prod")].map(p => {
+          const r = {}; p.querySelectorAll("input[data-k]").forEach(i => { if (i.type === "text") r[i.dataset.k] = i.value.trim(); });
+          r.photo = p.dataset.photo || ""; return r;
+        }).filter(r => r.name || r.type || r.flavour || r.size || r.price || r.photo);
+        sec.items.push({n:qi+1, en:q.en, ar:q.ar, products:rows});
+        return;
+      }
+      const answers = [];
+      q.o.forEach((o, oi) => {
+        const cb = document.getElementById(`${q.id}_${oi}`);
+        if (cb.checked){
+          const t = o.input ? (document.getElementById(`${q.id}_${oi}_t`).value.trim()) : "";
+          answers.push({en:o.en + (t ? ": " + t : ""), ar:o.ar + (t ? ": " + t : "")});
+        }
+      });
+      sec.items.push({n:qi+1, en:q.en, ar:q.ar, answers});
+    });
+    out.push(sec);
+  });
+  return out;
+}
+
+/* PDF is drawn on canvas pages (canvas shapes Arabic text correctly), then saved with jsPDF. */
+const PW = 1240, PH = 1754, M = 90;              // A4 at 150 dpi
+const F_EN = '"Inter", system-ui, sans-serif', F_SERIF = '"Cormorant Garamond", Georgia, serif', F_AR = '"Noto Naskh Arabic", "Geeza Pro", "Tahoma", serif';
+
+function loadImg(src){ return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = src; }); }
+
+async function drawPdfPages(data){
+  try { await document.fonts.ready; } catch(e){}
+  const pages = [];
+  let c, ctx, y;
+  const newPage = () => {
+    c = document.createElement("canvas"); c.width = PW; c.height = PH;
+    ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, PW, PH);
+    pages.push(c); y = M;
+  };
+  const wrap = (text, font, maxW) => {
+    ctx.font = font; const words = String(text).split(/\s+/); const lines = []; let line = "";
+    for (const w of words){ const t = line ? line + " " + w : w; if (ctx.measureText(t).width > maxW && line){ lines.push(line); line = w; } else line = t; }
+    if (line) lines.push(line); return lines;
+  };
+  // Measure first, break the page if needed, then draw.
+  const block = (text, {font, color = "#2b1d16", size, rtl = false, indent = 0, gap = 6}) => {
+    const maxW = PW - 2*M - indent;
+    const lines = wrap(text, font, maxW), lh = Math.round(size * 1.45);
+    if (y + lines.length * lh > PH - M) newPage();
+    ctx.font = font; ctx.fillStyle = color; ctx.textBaseline = "top";
+    ctx.direction = rtl ? "rtl" : "ltr"; ctx.textAlign = rtl ? "right" : "left";
+    lines.forEach(l => { ctx.fillText(l, rtl ? PW - M - indent : M + indent, y); y += lh; });
+    y += gap;
+  };
+  const rule = () => { ctx.fillStyle = "#e7dacd"; ctx.fillRect(M, y, PW - 2*M, 2); y += 14; };
+  const need = h => { if (y + h > PH - M) newPage(); };
+
+  newPage();
+  const name = document.getElementById("cname").value.trim() || "—";
+  const contact = document.getElementById("cphone").value.trim() || "—";
+  const date = new Date().toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"});
+  block("Brand discovery questionnaire", {font:`700 52px ${F_SERIF}`, size:52, color:"#5a3422", gap:0});
+  block("استبيان اكتشاف العلامة التجارية", {font:`700 36px ${F_AR}`, size:36, color:"#5a3422", rtl:true, gap:14});
+  block(`Client: ${name}   ·   Contact: ${contact}   ·   Date: ${date}`, {font:`500 22px ${F_EN}`, size:22, color:"#7a6558", gap:10});
+
+  for (const s of data){
+    need(140); y += 18;
+    block(s.en, {font:`700 38px ${F_SERIF}`, size:38, color:"#5a3422", gap:0});
+    block(s.ar, {font:`700 28px ${F_AR}`, size:28, color:"#8a5a3c", rtl:true, gap:4});
+    rule();
+    for (const it of s.items){
+      need(120);
+      block(`${it.n}. ${it.en}`, {font:`600 23px ${F_EN}`, size:23, gap:0});
+      block(it.ar, {font:`700 22px ${F_AR}`, size:22, rtl:true, gap:6});
+      if (it.products){
+        if (!it.products.length) block("No products added", {font:`italic 21px ${F_EN}`, size:21, color:"#a08c80", indent:28});
+        for (let i = 0; i < it.products.length; i++){
+          const p = it.products[i], img = p.photo ? await loadImg(p.photo) : null;
+          const fields = PROD_FIELDS.map(f => `${f[1]}: ${p[f[0]] || "—"}`);
+          const boxH = Math.max(img ? 230 : 0, 40 + fields.length * 30);
+          need(boxH + 16);
+          const top = y;
+          ctx.strokeStyle = "#e7dacd"; ctx.lineWidth = 2; ctx.strokeRect(M + 28, top, PW - 2*M - 28, boxH);
+          let tx = M + 48;
+          if (img){
+            const k = Math.min(200 / img.width, 200 / img.height);
+            ctx.drawImage(img, M + 44, top + 15, img.width * k, img.height * k); tx = M + 270;
+          }
+          ctx.direction = "ltr"; ctx.textAlign = "left"; ctx.textBaseline = "top";
+          ctx.font = `700 22px ${F_EN}`; ctx.fillStyle = "#5a3422"; ctx.fillText(`Product ${i+1}`, tx, top + 14);
+          ctx.font = `400 21px ${F_EN}`; ctx.fillStyle = "#2b1d16";
+          fields.forEach((f, j) => ctx.fillText(f, tx, top + 48 + j * 30));
+          y = top + boxH + 16;
+        }
+      } else if (!it.answers.length){
+        block("No answer", {font:`italic 21px ${F_EN}`, size:21, color:"#a08c80", indent:28, gap:0});
+        block("لا توجد إجابة", {font:`400 21px ${F_AR}`, size:21, color:"#a08c80", rtl:true, indent:28, gap:6});
+      } else {
+        for (const a of it.answers){
+          need(80);
+          block("✓ " + a.en, {font:`500 21px ${F_EN}`, size:21, indent:28, gap:0});
+          block(a.ar, {font:`400 21px ${F_AR}`, size:21, color:"#7a6558", rtl:true, indent:28, gap:6});
+        }
+      }
+      y += 10;
+    }
+  }
+  return pages;
+}
+
+function plainSummary(data){
+  const lines = [];
+  data.forEach(s => {
+    lines.push("", "== " + s.en + " ==");
+    s.items.forEach(it => {
+      if (it.products) {
+        lines.push(it.n + ". " + it.en);
+        it.products.forEach((p, i) => lines.push(`   ${i+1}) ${[p.name,p.type,p.flavour,p.size,p.price].filter(Boolean).join(" | ")}${p.photo ? " (photo in PDF)" : ""}`));
+      } else {
+        lines.push(it.n + ". " + it.en + " -> " + (it.answers.map(a => a.en).join("; ") || "-"));
+      }
+    });
+  });
+  return lines.join("\n");
+}
+
+let pdfBlob = null, pdfName = "", summaryText = "";
+
+async function makePdf(){
+  const data = collect();
+  summaryText = plainSummary(data);
+  const client = (document.getElementById("cname").value.trim() || "client").replace(/[^\w\u0600-\u06FF-]+/g, "-");
+  pdfName = `brand-questionnaire-${client}.pdf`;
+  const pages = await drawPdfPages(data);
+  const doc = new window.jspdf.jsPDF({unit: "mm", format: "a4", orientation: "portrait", compress: true});
+  pages.forEach((pg, i) => {
+    if (i) doc.addPage();
+    doc.addImage(pg.toDataURL("image/jpeg", 0.85), "JPEG", 0, 0, 210, 297);
+  });
+  pdfBlob = doc.output("blob");
+  return pdfBlob;
+}
+
+function setStatus(msg, ok){
+  const s = document.getElementById("status");
+  s.innerHTML = msg; s.className = "status" + (ok ? " ok" : "");
+}
+
+function download(){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(pdfBlob); a.download = pdfName;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+// Email: posts the PDF to formsubmit.co, which forwards it to CONFIG.email.
+function sendEmail(){
+  const f = document.createElement("form");
+  f.method = "POST"; f.action = "https://formsubmit.co/" + encodeURIComponent(CONFIG.email);
+  f.enctype = "multipart/form-data"; f.target = "fs_target"; f.style.display = "none";
+  const add = (n, v) => { const i = document.createElement("input"); i.type = "hidden"; i.name = n; i.value = v; f.appendChild(i); };
+  const who = document.getElementById("cname").value.trim() || "Client";
+  add("_subject", "Brand questionnaire answers: " + who);
+  add("_captcha", "false");
+  add("_template", "box");
+  add("Client", who);
+  add("Contact", document.getElementById("cphone").value.trim());
+  add("Answers", summaryText.slice(0, 9000));
+  const fi = document.createElement("input"); fi.type = "file"; fi.name = "attachment";
+  const dt = new DataTransfer(); dt.items.add(new File([pdfBlob], pdfName, {type: "application/pdf"}));
+  fi.files = dt.files; f.appendChild(fi);
+  document.body.appendChild(f); f.submit(); setTimeout(() => f.remove(), 3000);
+  setStatus("Sent by email. Thank you!<br><span class='ar'>تم الإرسال بالبريد. شكرًا لك!</span>", true);
+}
+
+// WhatsApp: on phones (and some computers) the share sheet attaches the PDF directly.
+// Otherwise the PDF downloads and WhatsApp opens so the client can attach it.
+async function sendWhatsApp(){
+  const file = new File([pdfBlob], pdfName, {type: "application/pdf"});
+  const text = `Hello ${CONFIG.designer}, here are my brand questionnaire answers.`;
+  if (navigator.canShare && navigator.canShare({files: [file]})){
+    try {
+      await navigator.share({files: [file], title: "Brand questionnaire", text});
+      setStatus("Choose WhatsApp, then " + esc(CONFIG.designer) + "'s chat.<br><span class='ar'>اختر واتساب ثم محادثة " + esc(CONFIG.designer) + ".</span>", true);
+      return;
+    } catch (e) { if (e.name === "AbortError") return; }
+  }
+  download();
+  window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(text + " (PDF attached)")}`, "_blank");
+  setStatus("The PDF was downloaded. In WhatsApp, tap the paperclip and attach it.<br><span class='ar'>تم تنزيل الملف. في واتساب، اضغط على مشبك الورق وأرفق الملف.</span>", true);
+}
+
+document.getElementById("sendBtn").addEventListener("click", async () => {
+  const b = document.getElementById("sendBtn");
+  b.disabled = true; b.innerHTML = '<span>Preparing PDF…</span><span class="ar">جارٍ التحضير…</span>';
+  try {
+    await makePdf();
+    setStatus("");
+    document.getElementById("dlg").showModal();
+  } catch (e) {
+    alert("Sorry, the PDF could not be created. Please try again.\nعذرًا، تعذّر إنشاء الملف. حاول مرة أخرى.");
+    console.error(e);
+  } finally {
+    b.disabled = false; b.innerHTML = '<span>Send</span><span class="ar">إرسال</span>';
+  }
+});
+document.getElementById("waBtn").onclick = sendWhatsApp;
+document.getElementById("mailBtn").onclick = sendEmail;
+document.getElementById("dlBtn").onclick = download;
+document.getElementById("closeBtn").onclick = () => document.getElementById("dlg").close();
+
+render();
+</script>
+</body>
+</html>
