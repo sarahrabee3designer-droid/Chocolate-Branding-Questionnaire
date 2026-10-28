@@ -13,7 +13,7 @@
    SETTINGS: fill these in before you upload the page.
    ===================================================================== */
 const CONFIG = {
-  // Email that receives the PDF (through formsubmit.co, free).
+  // Email that receives the PDF.
   email: "YOUR-EMAIL@example.com",
   // WhatsApp number in international format, digits only, no + or spaces.
   // Example for +971 50 123 4567: "971501234567"
@@ -127,7 +127,6 @@ const CONFIG = {
   </div>
 </dialog>
 
-<iframe name="fs_target" id="fs_target" style="display:none"></iframe>
 
 <script>
 /* Each option: [English, Arabic] or [English, Arabic, true] when it has a text box. */
@@ -464,24 +463,23 @@ function download(){
   document.body.appendChild(a); a.click(); a.remove();
 }
 
-// Email: posts the PDF to formsubmit.co, which forwards it to CONFIG.email.
-function sendEmail(){
-  const f = document.createElement("form");
-  f.method = "POST"; f.action = "https://formsubmit.co/" + encodeURIComponent(CONFIG.email);
-  f.enctype = "multipart/form-data"; f.target = "fs_target"; f.style.display = "none";
-  const add = (n, v) => { const i = document.createElement("input"); i.type = "hidden"; i.name = n; i.value = v; f.appendChild(i); };
+// Email: no service needed. On phones the share sheet attaches the PDF (pick Mail or Gmail).
+// Otherwise the PDF downloads and the client's email app opens with the address filled in.
+async function sendEmail(){
+  const file = new File([pdfBlob], pdfName, {type: "application/pdf"});
   const who = document.getElementById("cname").value.trim() || "Client";
-  add("_subject", "Brand questionnaire answers: " + who);
-  add("_captcha", "false");
-  add("_template", "box");
-  add("Client", who);
-  add("Contact", document.getElementById("cphone").value.trim());
-  add("Answers", summaryText.slice(0, 9000));
-  const fi = document.createElement("input"); fi.type = "file"; fi.name = "attachment";
-  const dt = new DataTransfer(); dt.items.add(new File([pdfBlob], pdfName, {type: "application/pdf"}));
-  fi.files = dt.files; f.appendChild(fi);
-  document.body.appendChild(f); f.submit(); setTimeout(() => f.remove(), 3000);
-  setStatus("Sent by email. Thank you!<br><span class='ar'>تم الإرسال بالبريد. شكرًا لك!</span>", true);
+  const subject = "Brand questionnaire answers: " + who;
+  const mailto = `mailto:${CONFIG.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Hello ${CONFIG.designer},\n\nMy brand questionnaire answers are in the attached PDF.\n\n${who}`)}`;
+  if (navigator.canShare && navigator.canShare({files: [file]})){
+    try {
+      await navigator.share({files: [file], title: subject, text: `To: ${CONFIG.email}`});
+      setStatus(`Choose Mail or Gmail and send it to <b>${esc(CONFIG.email)}</b>.<br><span class='ar'>اختر تطبيق البريد وأرسله إلى <b>${esc(CONFIG.email)}</b>.</span>`, true);
+      return;
+    } catch (e) { if (e.name === "AbortError") return; }
+  }
+  download();
+  window.location.href = mailto;
+  setStatus(`The PDF was downloaded. Attach it to the email that opened, then send.<br><span class='ar'>تم تنزيل الملف. أرفقه في الرسالة التي فُتحت ثم أرسلها.</span><br><a href="${mailto}">Email app didn't open?<span class='ar'>لم يُفتح البريد؟</span></a>`, true);
 }
 
 // WhatsApp: on phones (and some computers) the share sheet attaches the PDF directly.
